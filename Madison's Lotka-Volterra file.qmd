@@ -1,0 +1,62 @@
+---
+title: "Victory Quarto"
+author: "Maddy Enda"
+format: html
+editor: visual
+---
+
+# load packages ----
+
+```{r}
+library(deSolve)
+library(tidyverse)
+
+# Create a time sequence ----
+time_seq <- seq(from = 0, to = 0.2, by = 0.001)
+```
+
+```{r}
+# Set some parameter values (these can change - keep it in mind) ----
+parameter_example <- c(lambda = 0.4, delta = 0.06)
+
+# Set the initial conditions ----
+init_cond_example <- c(C = 4.8)
+```
+
+```{r}
+# Prepare differential equation(s) as a function, which take three arguments aka inputs (a sequence of time steps, a vector of our initial conditions, and a vector of our parameter values) ----
+df_equation_example <- function(time_seq, init_cond_example, parameter_example) {
+  
+  # using our initial conditions and parameter values ....
+  with(as.list(c(init_cond_example, parameter_example)), {
+    
+    # ... estimate the numerical solutions to this differential equation....
+    dCdt = lambda * C^2 - 3.1 * delta
+    
+    # ...and return a list of approximated solutions calculated at each time step for all equations (here we only have 1 equation that we're solving for)
+    return(list(c(dCdt)))
+    
+  })
+}
+```
+
+```{r}
+# Find the approximate solution using `deSolve::ode()` ----
+approx_df_example <- ode(y = init_cond_example,
+                         times = time_seq, 
+                         func = df_equation_example, 
+                         parms = parameter_example)
+
+# Check the class ----
+class(approx_df_example)
+
+# We really want this to be a data frame for plotting (more to come in EDS 221) ----
+approx_df_example <- data.frame(approx_df_example)
+class(approx_df_example) # you might also consider looking at it using `View(approx_df_example)`
+
+# Plot it ----
+ggplot(data = approx_df_example, aes(x = time, y = C)) +
+  geom_point(size = 0.1)
+```
+
+
